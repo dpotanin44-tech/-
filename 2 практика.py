@@ -396,3 +396,98 @@ if __name__ == "__main__":
 ```
 
 ---
+# Практическая 2.4
+
+Задача 1 (Погода OpenWeather) и Задача 2 (Коты/Собаки)
+*Объединено в один GUI интерфейс по заданию.*
+
+```python
+import tkinter as tk
+from tkinter import messagebox
+import urllib.request
+import urllib.parse
+import json
+import base64
+import os
+import sys
+
+API_KEY = "ТВОЙ_КЛЮЧ_OPENWEATHER"
+
+class App2_4(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Практическая 2.4")
+        self.geometry("500x500")
+
+        # Задача 1: Погода
+        frame_w = tk.LabelFrame(self, text="Погода")
+        frame_w.pack(fill='x', padx=10, pady=10)
+        
+        self.city_entry = tk.Entry(frame_w)
+        self.city_entry.pack(side='left', padx=5)
+        self.city_entry.insert(0, "Moscow")
+        tk.Button(frame_w, text="Узнать", command=self.get_weather).pack(side='left')
+        
+        self.lbl_temp = tk.Label(frame_w, text="-- °C")
+        self.lbl_temp.pack(pady=5)
+        self.lbl_icon = tk.Label(frame_w)
+        self.lbl_icon.pack()
+
+        # Задача 2: Коты и Собаки
+        frame_a = tk.LabelFrame(self, text="Животные")
+        frame_a.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        tk.Button(frame_a, text="Кот", command=self.get_cat).pack(side='left', padx=10)
+        tk.Button(frame_a, text="Собака", command=self.get_dog).pack(side='left', padx=10)
+        
+        self.lbl_anim = tk.Label(frame_a)
+        self.lbl_anim.pack(expand=True)
+
+    def get_weather(self):
+        city = urllib.parse.quote(self.city_entry.get())
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla'})
+            data = json.loads(urllib.request.urlopen(req).read().decode())
+            self.lbl_temp.config(text=f"{data['main']['temp']} °C")
+            
+            icon = data['weather'][0]['icon']
+            icon_url = f"http://openweathermap.org/img/wn/{icon}@2x.png"
+            icon_data = urllib.request.urlopen(urllib.request.Request(icon_url, headers={'User-Agent': 'Mozilla'})).read()
+            self.img_w = tk.PhotoImage(data=base64.b64encode(icon_data))
+            self.lbl_icon.config(image=self.img_w)
+        except Exception as e:
+            messagebox.showerror("Ошибка", str(e))
+
+    def get_cat(self):
+        url = "https://api.thecatapi.com/v1/images/search?mime_types=png"
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla'})
+            img_url = json.loads(urllib.request.urlopen(req).read().decode())[0]['url']
+            img_data = urllib.request.urlopen(urllib.request.Request(img_url, headers={'User-Agent': 'Mozilla'})).read()
+            self.img_c = tk.PhotoImage(data=base64.b64encode(img_data))
+            self.lbl_anim.config(image=self.img_c, text="")
+        except Exception as e:
+            messagebox.showerror("Ошибка", str(e))
+
+    def get_dog(self):
+        url = "https://dog.ceo/api/breeds/image/random"
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla'})
+            img_url = json.loads(urllib.request.urlopen(req).read().decode())['message']
+            ext = img_url.split('.')[-1]
+            fname = "dog." + ext
+            urllib.request.urlretrieve(img_url, fname)
+            
+            if ext.lower() in ['png', 'gif']:
+                self.img_d = tk.PhotoImage(file=fname)
+                self.lbl_anim.config(image=self.img_d, text="")
+            else:
+                self.lbl_anim.config(image='', text="JPG открыт в системе")
+                os.startfile(fname) if sys.platform == "win32" else None
+        except Exception as e:
+            messagebox.showerror("Ошибка", str(e))
+
+if __name__ == "__main__":
+    app = App2_4()
+    app.mainloop()
