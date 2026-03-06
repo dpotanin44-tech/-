@@ -411,7 +411,7 @@ import base64
 import os
 import sys
 
-API_KEY = "ТВОЙ_КЛЮЧ_OPENWEATHER"
+API_KEY = "КЛЮЧ_OPENWEATHER"
 
 class App2_4(tk.Tk):
     def __init__(self):
