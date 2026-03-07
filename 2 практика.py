@@ -405,7 +405,7 @@ import urllib.parse
 import json
 import base64
 
-# ВСТАВЬТЕ СЮДА СВОЙ КЛЮЧ ОТ OPENWEATHERMAP
+
 API_KEY = "ВАШ_КЛЮЧ_ОТ_OPENWEATHER"
 
 class WeatherApp(tk.Tk):
